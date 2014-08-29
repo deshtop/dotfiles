@@ -1,0 +1,16 @@
+Config { font = "xft:Ubuntu Mono"
+         , bgColor = "#002b36"
+         , fgColor = "#839496"
+         , lowerOnStart = False
+         , commands = [ Run Cpu ["-L","20","-H","50","-l","#859900","-n","#b58900","-h","#dc322f"] 10
+                      , Run Memory ["-t","Mem: <usedratio>%","-L","20","-H","50","-l","#859900","-n","#b58900","-h","#dc322f"] 10
+                      , Run Date "(%a) %_d %b %R:%S" "date" 10
+                      , Run Battery ["-t","Batt: <left>% (<timeleft>)","-L","20","-H","70","-l","#dc322f","-n","#b58900","-h","#859900"] 10
+                      , Run Com "/home/andi/.xmonad/script/vol.sh" [] "vol" 5
+                      , Run Com "/home/andi/.xmonad/script/bright.sh" [] "bright" 5
+                      , Run Com "/home/andi/.xmonad/script/backup.sh" [] "backup" 50
+                      , Run StdinReader
+                      ]
+         , sepChar = "*"
+         , template = "*StdinReader* } {<fc=#d33682>*backup*</fc> « *cpu* « *memory* « *battery* « Vol: <fc=#2aa198>*vol*</fc>% « B: <fc=#2aa198>*bright*</fc>% « <fc=#268bd2>*date*</fc>"
+       }
