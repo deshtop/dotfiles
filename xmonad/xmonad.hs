@@ -72,7 +72,7 @@ conf myConfig = defaultConfig {
         startupHook        = myStartupHook
         }
 
-myWorkspaces    = [" α ", " β ", " γ ", "comm", "music", "www", " π ", " ξ "] 
+myWorkspaces    = [" α ", " β ", " γ ", "comm", "media", "www", " π ", " ξ "] 
 
 -- Keymappings
 myKeys =    [ ("M-q",   spawn "killall xmobar && xmonad --recompile && xmonad --restart") 
@@ -108,12 +108,13 @@ searchEngines = [ ("g", google)
 myStartupHook = do
     spawnOn " α "   "urxvt -e ./.agents.sh"
     spawnOn "comm"  "urxvt -e mutt"
---  spawnOn "music" "urxvt -e ncmpcpp"
+--  spawnOn "media" "urxvt -e ncmpcpp"
     spawnOn "www"   "iceweasel"
 
 myManageHook = manageSpawn
                <+> composeAll
                    [ className =? "Evince"                         --> viewShift " π "
+                   , className =? "Vlc"                            --> doFloat >> viewShift "media"
                    , className =? "Plugin-container"               --> doFloat         -- Flash fullscreen
                    , className =? "MATLAB"                         --> doFloat
                    , className =? "com-mathworks-util-PostVMInit"  --> doFloat         -- MATLAB plots
@@ -126,7 +127,7 @@ myManageHook = manageSpawn
 myLayout =  avoidStruts $ 
             lessBorders Screen $
             workspaceDir "/home/andi" $
-            onWorkspaces ["comm", "music", "www"] myResTall $
+            onWorkspaces ["comm", "media", "www"] myResTall $
             allLayouts
             where   allLayouts = myResTall
                                  ||| myThreeCol
