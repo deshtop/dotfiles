@@ -1,6 +1,6 @@
 Dotfiles
 ========
 
-» *These are my dotfiles.
+»_These are my dotfiles._
 
-There are many others like them, but these ones are mine.* «
+_There are many others like them, but these ones are mine._«
