@@ -138,7 +138,7 @@ myLayout =  avoidStruts $
                                 where   nmaster = 1 
                                         ratio   = 1/2           -- golden ratio: toRational (2/(1+sqrt(5)::Double))
                                         delta   = 3/100
-                    myThreeCol = named "<fc=#fdf6e3>[</fc><fc=#839496> ||</fc><fc=#fdf6e3>]</fc>" 
+                    myThreeCol = named "<fc=#fdf6e3>[</fc><fc=#839496> |+</fc><fc=#fdf6e3>]</fc>" 
                                  $ maximize $ ThreeCol 1 (3/100) (1/2)
                     myFull = named "<fc=#fdf6e3>[</fc><fc=#839496>   </fc><fc=#fdf6e3>]</fc>" 
                              $ noBorders Full
