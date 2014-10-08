@@ -1,6 +1,8 @@
 import XMonad
 
-import XMonad.Layout.NoBorders
+import XMonad.Actions.WorkspaceNames
+
+import XMonad.Layout.NoBorders 
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.Named
@@ -13,7 +15,7 @@ import XMonad.Actions.SpawnOn
 import XMonad.Actions.Search
 import XMonad.Actions.DynamicWorkspaces
 import XMonad.Actions.CopyWindow(copy)
-import XMonad.Actions.Submap
+import XMonad.Actions.CycleWS (swapNextScreen)
 
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.ManageDocks hiding (L)
@@ -39,10 +41,11 @@ import System.FilePath.Find
 import Control.Monad(liftM2)
 
 import Data.Monoid
+import Data.Maybe
 import qualified Data.Map        as M
 
 main = do
-    myXmobar <- spawnPipe "xmobar"
+    myXmobar <- spawnPipe "xmobar -x 1"
     xmonad $ withUrgencyHookC NoUrgencyHook urgentConfig 
         $ conf myXmobar
         `additionalKeysP` myKeys
@@ -57,22 +60,22 @@ conf myConfig = defaultConfig {
         borderWidth         = 2,
         normalBorderColor   = base03,
         focusedBorderColor  = base3,
-        logHook             = dynamicLogWithPP $ xmobarPP
-                    { ppOutput      = hPutStrLn myConfig 
+        logHook             = dynamicLogWithPP 
+                              $ xmobarPP
+                    { ppOutput      = hPutStrLn myConfig
                     , ppCurrent     = xmobarColor base3 "" . wrap "[" "]" 
                     , ppVisible     = xmobarColor base3 "" . wrap "(" ")"
-                    , ppTitle       = xmobarColor base3 "" . shorten 50 
+                    , ppTitle       = xmobarColor base3 "" . shorten 60
                     , ppSep         = "  »  "
                     , ppWsSep       = " "
                     , ppHidden      = xmobarColor base01 ""
-                    , ppUrgent      = xmobarColor base3 yellow . pad
+                    , ppUrgent      = xmobarColor base3 yellow
                     },
         layoutHook         = myLayout,
         manageHook         = myManageHook,
         startupHook        = myStartupHook
         }
 
-myWorkspaces    = [" α ", " β ", " γ ", "comm", "media", "www", " π ", " ξ "] 
 
 -- Keymappings
 myKeys =    [ ("M-q",   spawn "killall xmobar && xmonad --recompile && xmonad --restart") 
@@ -82,20 +85,22 @@ myKeys =    [ ("M-q",   spawn "killall xmobar && xmonad --recompile && xmonad --
             , ("M-d",   changeDir promptConfig)
             , ("M-p",   passPrompt promptConfig)
             , ("M-c",   shellPrompt promptConfig)
+            , ("M-r",   swapNextScreen)
+            ]
+    
+myMMKeys =  [ ((0, 0x1008FF12),     spawn "amixer set Master toggle")
+            , ((0, 0x1008FF11),     spawn "amixer set Master 3%-")
+            , ((0, 0x1008FF13),     spawn "amixer set Master 3%+")
+            , ((0, 0x1008FFB2),     spawn "ncmpcpp toggle")
+            , ((0, 0x1008FF02),     spawn "xbacklight -inc 3")
+            , ((0, 0x1008FF03),     spawn "xbacklight -dec 3")
+            , ((0, 0x1008FF59),     spawn "ncmpcpp prev")
+            , ((0, 0x1008FF95),     spawn "ncmpcpp next")
+            , ((mod4Mask, xK_Print), spawn "toggle-touchpad")
             ]
 
-myMMKeys =  [ ((0, 0x1008FF12), spawn "amixer set Master toggle")
-            , ((0, 0x1008FF11), spawn "amixer set Master 3%-")
-            , ((0, 0x1008FF13), spawn "amixer set Master 3%+")
-            , ((0, 0x1008FFB2), spawn "ncmpcpp toggle")
-            , ((0, 0x1008FF02), spawn "xbacklight -inc 3")
-            , ((0, 0x1008FF03), spawn "xbacklight -dec 3")
-            , ((0, 0x1008FF59), spawn "ncmpcpp prev")
-            , ((0, 0x1008FF95), spawn "ncmpcpp next")
-            ]
-
-searchKeys = [("M-o " ++ k, promptSearch promptConfig f  >> windows (W.view "www")) | (k,f) <- searchEngines ]
-             ++ [("M-i " ++ k, selectSearch f >> windows (W.view "www")) | (k,f) <- searchEngines ]
+searchKeys = [("M-o " ++ k, promptSearch promptConfig f  >> windows (W.view " Ψ ")) | (k,f) <- searchEngines ]
+             ++ [("M-i " ++ k, selectSearch f >> windows (W.view " Ψ ")) | (k,f) <- searchEngines ]
 
 searchEngines = [ ("g", google)
                 , ("w", wikipedia) 
@@ -106,28 +111,31 @@ searchEngines = [ ("g", google)
 
 -- Hooks
 myStartupHook = do
+    spawn           "random-wallpaper"
     spawnOn " α "   "urxvt -e ./.agents.sh"
-    spawnOn "comm"  "urxvt -e mutt"
---  spawnOn "media" "urxvt -e ncmpcpp"
-    spawnOn "www"   "iceweasel"
+    spawnOn " Ψ "   "iceweasel"
+    spawnOn " Σ "   "urxvt -e mutt"
+--  spawnOn " Θ "   "urxvt -e ncmpcpp"
 
 myManageHook = manageSpawn
                <+> composeAll
-                   [ className =? "Evince"                         --> viewShift " π "
-                   , className =? "Vlc"                            --> doFloat >> viewShift "media"
+                   [ className =? "Zathura"                        --> viewShift " π "
+                   , className =? "Vlc"                            --> doFloat >> viewShift " Θ "
                    , className =? "Plugin-container"               --> doFloat         -- Flash fullscreen
                    , className =? "MATLAB"                         --> doFloat
                    , className =? "com-mathworks-util-PostVMInit"  --> doFloat         -- MATLAB plots
                    , className =? "Xmessage"                       --> doCenterFloat
-                   , isDialog                                      --> doCenterFloat
+                   , manageDocks
                    ]
                <+> manageHook defaultConfig
                where   viewShift = doF . liftM2 (.) W.greedyView W.shift
 
+myWorkspaces    = [" α ", " β ", " γ ", " Ψ ", " Σ ", " π ", " Θ ", " ξ "] 
+
 myLayout =  avoidStruts $ 
             lessBorders Screen $
             workspaceDir "/home/andi" $
-            onWorkspaces ["comm", "media", "www"] myResTall $
+            onWorkspaces [" Θ ", " Σ ", " Ψ "] myResTall $
             allLayouts
             where   allLayouts = myResTall
                                  ||| myThreeCol
@@ -152,7 +160,7 @@ urgentConfig = UrgencyConfig
 
 -- Prompt config
 promptConfig = defaultXPConfig
-    { font          = "xft:Ubuntu Mono"
+    { font          = "xft:DejaVu Sans Mono:pixelsize=14"
     , fgColor       = base00
     , bgColor       = base3 
     , fgHLight      = base3 
@@ -161,6 +169,7 @@ promptConfig = defaultXPConfig
     , height        = 18 
     , position      = Bottom 
     }  
+
 
 -- Password retrieval
 data Pass = Pass
@@ -184,6 +193,7 @@ getPasswords = do
     entries <- find System.FilePath.Find.always (fileName ~~? "*.gpg") $ passwordStore
     return $ map ((makeRelative passwordStore) . dropExtension) entries
         
+
 -- Colors (Solarized theme)
 base03  = "#002b36"
 base02  = "#073642"
@@ -201,5 +211,3 @@ violet  = "#6c71c4"
 blue    = "#268bd2"
 cyan    = "#2aa198"
 green   = "#859900"
-
---myDmenu = "dmenu_run -nf '\x23\&dcdccc' -sb '\x23\&dcdccc' -sf '\x23\&3f3f3f' -nb '\x23\&000000' -fn 'Inconsolata-12'"
