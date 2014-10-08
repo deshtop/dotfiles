@@ -30,7 +30,6 @@
 ! #define S_base2         #073642
 ! #define S_base3         #002b36
 
-
 Xft.antialias:      True
 Xft.hinting:        True
 Xft.hintstyle:      hintslight
@@ -56,7 +55,7 @@ URxvt*color15:                 S_base3
 
 !URxvt*background:             S_base03
 URxvt*foreground:              S_base0
-URxvt*fading:                  28 
+URxvt*fading:                  30 
 URxvt*fadeColor:               S_base03
 URxvt*cursorColor:             S_base1
 URxvt*pointerColorBackground:  S_base01
