@@ -30,6 +30,10 @@
 ! #define S_base2         #073642
 ! #define S_base3         #002b36
 
+xscreensaver.logFile:/home/andi/xscreensaver.log
+xscreensaver.verbose:true
+
+
 Xft.antialias:      True
 Xft.hinting:        True
 Xft.hintstyle:      hintslight
@@ -55,12 +59,15 @@ URxvt*color15:                 S_base3
 
 !URxvt*background:             S_base03
 URxvt*foreground:              S_base0
-URxvt*fading:                  30 
-URxvt*fadeColor:               S_base03
+URxvt*fading:                  50 
+URxvt*fadeColor:               #151515
+!#FFFAFA 
+!S_base03
 URxvt*cursorColor:             S_base1
 URxvt*pointerColorBackground:  S_base01
 URxvt*pointerColorForeground:  S_base1
 URxvt*tintColor:               #3f3f3f
+
 URxvt*colorUL:                 #c5f770
 URxvt*underlineColor:          #c5f779
 
@@ -70,7 +77,7 @@ URxvt*termName:                rxvt-unicode-256color
 URxvt*scrollBar:               false
 URxvt*borderless:              true 
 URxvt*transparent:             true
-URxvt*shading:                 50	
+URxvt*shading:                 30
 URxvt*saveLines:               2000
 URxvt.urgentOnBell:            true
 URxvt*scrollTtyOutput:         false
