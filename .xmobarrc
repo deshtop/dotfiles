@@ -1,17 +1,19 @@
 Config { font = "xft:DejaVu Sans Mono:pixelsize=14"
-         , bgColor = "#002b36"
-         , fgColor = "#839496"
+         , bgColor = "#282828"
+         , fgColor = "#EBDBB2"
          , lowerOnStart = False
-         , commands = [ Run Cpu ["-L","20","-H","50","-l","#859900","-n","#b58900","-h","#dc322f"] 10
-                      , Run Memory ["-t","Mem: <usedratio>%","-L","20","-H","50","-l","#859900","-n","#b58900","-h","#dc322f"] 10
+         , commands = [ Run Cpu ["-L","20","-H","50","-l","#B8BB26","-n","#FE8019","-h","#FB4934"] 10
+                      , Run Memory ["-t","Mem: <usedratio>%","-L","20","-H","50","-l","#B8BB26","-n","#FE8019","-h","#FB4934"] 10
                       , Run Date "(%a) %_d %b %R:%S" "date" 10
-                      , Run Battery ["-t","Batt: <left>% (<timeleft>)","-L","20","-H","70","-l","#dc322f","-n","#b58900","-h","#859900"] 10
+                      , Run Battery ["-t","Batt: <left>% (<timeleft>)","-L","20","-H","70","-l","#FB4934","-n","#FE8019","-h","#B8BB26"] 10
                       , Run Com "/home/andi/.xmonad/script/vol.sh" [] "vol" 5
                       , Run Com "/home/andi/.xmonad/script/touchpad.sh" [] "touchpad" 10
                       , Run Com "/home/andi/.xmonad/script/backup.sh" [] "backup" 50
-                      , Run Brightness ["-t","B: <percent>", "-L","50","-H","80","-l","#839496","-n","#93a1a1","-h","#eee8d5"] 5
+--                    , Run Brightness ["-t","B: <percent>", "-L","50","-H","80","-l","#839496","-n","#93a1a1","-h","#eee8d5"] 5
+                      , Run Com "/home/andi/.xmonad/script/bright.sh" [] "bright" 5
                       , Run StdinReader
                       ]
          , sepChar = "*"
-         , template = "*StdinReader* } {<fc=#d33682>*backup*</fc> « [<fc=#dc322f>*touchpad*</fc>] « *cpu* « *memory* « *battery* « Vol: <fc=#2aa198>*vol*</fc>% « *bright*% « <fc=#268bd2>*date*</fc> "
+         , template = "*StdinReader* } {<fc=#FB4934>*backup*</fc> « [<fc=#FB4934>*touchpad*</fc>] « *cpu* « *memory* « *battery* « Vol: <fc=#8EC07C>*vol*</fc>% « <fc=#8EC07C>*bright*</fc>% « <fc=#FABD2F>*date*</fc> "
+
        }
