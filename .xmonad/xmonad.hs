@@ -72,7 +72,7 @@ myKeys =    [ ("M-q",   spawn "killall xmobar && xmonad --recompile && xmonad --
             , ("M-a",   sendMessage MirrorShrink)
             , ("M-z",   sendMessage MirrorExpand) 
             , ("M-#",   withFocused (sendMessage . maximizeRestore))
-            , ("M-d",   changeDir promptConfig >> spawn "./resume.sh")
+            , ("M-d",   changeDir promptConfig >> spawn "./.resume.sh")
             , ("M-p",   passPrompt promptConfig)
             , ("M-c",   shellPrompt promptConfig)
             , ("M-r",   swapNextScreen)
@@ -140,7 +140,7 @@ myLayout =  lessBorders Screen $
                                         delta   = 3/100
                     myMirrorTall =  named "<fc=#FDF4C1>[</fc><fc=#A89984>-:-</fc><fc=#FDF4C1>]</fc>"
                                    $ avoidStruts $ Mirror $ Tall 1 (3/100) (4/5)
-                    myVideoLayout =  named "<fc=#FDF4C1>[</fc><fc=#A89984>-:-</fc><fc=#FDF4C1>]</fc>"
+                    myVideoLayout =  named "<fc=#FDF4C1>[</fc><fc=#A89984>   </fc><fc=#FDF4C1>]</fc>"
                                     $ noBorders Full
 
 urgentConfig = UrgencyConfig 
