@@ -19,7 +19,6 @@ import XMonad.Hooks.ManageHelpers
 import XMonad.Util.EZConfig(additionalKeys, additionalKeysP)
 import XMonad.Util.Run
 
-
 import qualified XMonad.StackSet as W
 
 import XMonad.Prompt
@@ -31,9 +30,6 @@ import System.FilePath.Find
 
 import Control.Monad(liftM2)
 
---import Data.Monoid
---import Data.Maybe
---import qualified Data.Map        as M
 
 main = do
     myXmobar <- spawnPipe "xmobar -x 1"
@@ -65,7 +61,6 @@ conf myConfig = defaultConfig {
         manageHook         = myManageHook,
         startupHook        = myStartupHook
         }
-
 
 -- Keymappings
 myKeys =    [ ("M-q",   spawn "killall xmobar && xmonad --recompile && xmonad --restart") 
