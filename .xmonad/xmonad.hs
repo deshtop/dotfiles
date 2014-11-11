@@ -1,20 +1,14 @@
 import XMonad
 
-import XMonad.Actions.WorkspaceNames
-
 import XMonad.Layout.NoBorders 
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.Named
-import XMonad.Layout.GridVariants
-import XMonad.Layout.ThreeColumns
 import XMonad.Layout.Maximize
 import XMonad.Layout.WorkspaceDir
 
 import XMonad.Actions.SpawnOn
 import XMonad.Actions.Search
-import XMonad.Actions.DynamicWorkspaces
-import XMonad.Actions.CopyWindow(copy)
 import XMonad.Actions.CycleWS (swapNextScreen)
 
 import XMonad.Hooks.UrgencyHook
@@ -22,27 +16,24 @@ import XMonad.Hooks.ManageDocks hiding (L)
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageHelpers
 
-import XMonad.Util.NamedWindows
-import XMonad.Util.Run(spawnPipe, hPutStrLn)
 import XMonad.Util.EZConfig(additionalKeys, additionalKeysP)
 import XMonad.Util.Run
+
 
 import qualified XMonad.StackSet as W
 
 import XMonad.Prompt
 import XMonad.Prompt.Shell
 
-import System.Exit
-import System.IO
 import System.Environment
 import System.FilePath.Posix
 import System.FilePath.Find
 
 import Control.Monad(liftM2)
 
-import Data.Monoid
-import Data.Maybe
-import qualified Data.Map        as M
+--import Data.Monoid
+--import Data.Maybe
+--import qualified Data.Map        as M
 
 main = do
     myXmobar <- spawnPipe "xmobar -x 1"
@@ -58,18 +49,17 @@ conf myConfig = defaultConfig {
         focusFollowsMouse   = False,
         workspaces          = myWorkspaces,
         borderWidth         = 2,
-        normalBorderColor   = base03,
-        focusedBorderColor  = base3,
-        logHook             = dynamicLogWithPP 
-                              $ xmobarPP
+        normalBorderColor   = dark0,
+        focusedBorderColor  = light0,
+        logHook             = dynamicLogWithPP xmobarPP
                     { ppOutput      = hPutStrLn myConfig
-                    , ppCurrent     = xmobarColor base3 "" . wrap "[" "]" 
-                    , ppVisible     = xmobarColor base3 "" . wrap "(" ")"
-                    , ppTitle       = xmobarColor base3 "" . shorten 60
+                    , ppCurrent     = xmobarColor light0 "" . wrap "[" "]" 
+                    , ppVisible     = xmobarColor light0 "" . wrap "(" ")"
+                    , ppTitle       = xmobarColor light1 "" . shorten 90 
                     , ppSep         = "  »  "
                     , ppWsSep       = " "
-                    , ppHidden      = xmobarColor base01 ""
-                    , ppUrgent      = xmobarColor base3 yellow
+                    , ppHidden      = xmobarColor light4 ""
+                    , ppUrgent      = xmobarColor dark0 yellow
                     },
         layoutHook         = myLayout,
         manageHook         = myManageHook,
@@ -82,7 +72,7 @@ myKeys =    [ ("M-q",   spawn "killall xmobar && xmonad --recompile && xmonad --
             , ("M-a",   sendMessage MirrorShrink)
             , ("M-z",   sendMessage MirrorExpand) 
             , ("M-#",   withFocused (sendMessage . maximizeRestore))
-            , ("M-d",   changeDir promptConfig)
+            , ("M-d",   changeDir promptConfig >> spawn "./resume.sh")
             , ("M-p",   passPrompt promptConfig)
             , ("M-c",   shellPrompt promptConfig)
             , ("M-r",   swapNextScreen)
@@ -132,27 +122,27 @@ myManageHook = manageSpawn
 
 myWorkspaces    = [" α ", " β ", " γ ", " Ψ ", " Σ ", " π ", " Θ ", " ξ "] 
 
-myLayout =  avoidStruts $ 
-            lessBorders Screen $
+myLayout =  lessBorders Screen $
             workspaceDir "/home/andi" $
-            onWorkspaces [" Θ ", " Σ ", " Ψ "] myResTall $
-            allLayouts
-            where   allLayouts = myResTall
-                                 ||| myThreeCol
---                               ||| myGrid
---                               ||| myFull
-                    myResTall = named "<fc=#fdf6e3>[</fc><fc=#839496> |-</fc><fc=#fdf6e3>]</fc>" 
-                                $ maximize $ ResizableTall nmaster delta ratio []
+            onWorkspaces [" α ", " β ", " γ "] (myMirrorTall ||| myResTall) $
+            onWorkspace  " Θ " (myResTall ||| myVideoLayout) $
+            onWorkspace  " π " (myPDFLayout ||| myResTall) $
+            myResTall 
+            where   myResTall = named "<fc=#FDF4C1>[</fc><fc=#A89984> |-</fc><fc=#FDF4C1>]</fc>" 
+                                $ avoidStruts $ maximize $ ResizableTall nmaster delta ratio []
                                 where   nmaster = 1 
                                         ratio   = 1/2           -- golden ratio: toRational (2/(1+sqrt(5)::Double))
                                         delta   = 3/100
-                    myThreeCol = named "<fc=#fdf6e3>[</fc><fc=#839496> |+</fc><fc=#fdf6e3>]</fc>" 
-                                 $ maximize $ ThreeCol 1 (3/100) (1/2)
-                    myFull = named "<fc=#fdf6e3>[</fc><fc=#839496>   </fc><fc=#fdf6e3>]</fc>" 
-                             $ noBorders Full
-                    myGrid = named  "<fc=#fdf6e3>[</fc><fc=#839496>-|-</fc><fc=#fdf6e3>]</fc>"
-                             $ maximize $ SplitGrid L 2 3 (3/4) (16/10) (5/100)
-                    
+                    myPDFLayout = named "<fc=#FDF4C1>[</fc><fc=#A89984>  |</fc><fc=#FDF4C1>]</fc>"
+                                  $ avoidStruts $  maximize $ ResizableTall nmaster delta ratio []
+                                  where nmaster = 1
+                                        ratio  = 4/5
+                                        delta   = 3/100
+                    myMirrorTall =  named "<fc=#FDF4C1>[</fc><fc=#A89984>-:-</fc><fc=#FDF4C1>]</fc>"
+                                   $ avoidStruts $ Mirror $ Tall 1 (3/100) (4/5)
+                    myVideoLayout =  named "<fc=#FDF4C1>[</fc><fc=#A89984>-:-</fc><fc=#FDF4C1>]</fc>"
+                                    $ noBorders Full
+
 urgentConfig = UrgencyConfig 
     { suppressWhen = Focused
     , remindWhen = Dont 
@@ -161,11 +151,11 @@ urgentConfig = UrgencyConfig
 -- Prompt config
 promptConfig = defaultXPConfig
     { font          = "xft:DejaVu Sans Mono:pixelsize=14"
-    , fgColor       = base00
-    , bgColor       = base3 
-    , fgHLight      = base3 
-    , bgHLight      = base1
-    , borderColor   = base1
+    , fgColor       = dark2
+    , bgColor       = light0
+    , fgHLight      = light0 
+    , bgHLight      = dark2 
+    , borderColor   = light0 
     , height        = 18 
     , position      = Bottom 
     }  
@@ -193,8 +183,9 @@ getPasswords = do
     entries <- find System.FilePath.Find.always (fileName ~~? "*.gpg") $ passwordStore
     return $ map ((makeRelative passwordStore) . dropExtension) entries
         
-
--- Colors (Solarized theme)
+-- Colors
+{-
+-- Solarized theme
 base03  = "#002b36"
 base02  = "#073642"
 base01  = "#586e75"
@@ -211,3 +202,17 @@ violet  = "#6c71c4"
 blue    = "#268bd2"
 cyan    = "#2aa198"
 green   = "#859900"
+-}
+
+-- Gruvbox theme
+dark0   = "#282828"
+dark1   = "#3C3836"
+dark2   = "#504945"
+dark3   = "#665C54"
+dark4   = "#7C6F64"
+light0  = "#FDF4C1"
+light1  = "#EBDBB2"
+light2  = "#D5C4A1"
+light3  = "#BDAE93"
+light4  = "#A89984"
+yellow  = "#FABD2F"
