@@ -14,6 +14,6 @@ Config { font = "xft:DejaVu Sans Mono:pixelsize=14"
                       , Run StdinReader
                       ]
          , sepChar = "*"
-         , template = "*StdinReader* } {<fc=#FB4934>*backup*</fc> « [<fc=#FB4934>*touchpad*</fc>] « *cpu* « *memory* « *battery* « Vol: <fc=#8EC07C>*vol*</fc>% « <fc=#8EC07C>*bright*</fc>% « <fc=#FABD2F>*date*</fc> "
+         , template = "*StdinReader* } {<fc=#D3869B>*backup*</fc> « [<fc=#FB4934>*touchpad*</fc>] « *cpu* « *memory* « *battery* « Vol: <fc=#8EC07C>*vol*</fc>% « <fc=#8EC07C>*bright*</fc>% « <fc=#FABD2F>*date*</fc> "
 
        }
