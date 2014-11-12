@@ -18,6 +18,7 @@ import XMonad.Hooks.ManageHelpers
 
 import XMonad.Util.EZConfig(additionalKeys, additionalKeysP)
 import XMonad.Util.Run
+import XMonad.Util.Scratchpad
 
 import qualified XMonad.StackSet as W
 
@@ -41,7 +42,7 @@ main = do
 
 conf myConfig = defaultConfig {
         modMask             = mod4Mask,
-        terminal            = "urxvt", 
+        terminal            = myTerminal,
         focusFollowsMouse   = False,
         workspaces          = myWorkspaces,
         borderWidth         = 2,
@@ -49,19 +50,21 @@ conf myConfig = defaultConfig {
         focusedBorderColor  = light0,
         logHook             = dynamicLogWithPP xmobarPP
                     { ppOutput      = hPutStrLn myConfig
-                    , ppCurrent     = xmobarColor light0 "" . wrap "[" "]" 
-                    , ppVisible     = xmobarColor light0 "" . wrap "(" ")"
+                    , ppCurrent     = xmobarColor light0 "" . wrap "[" "]" . hideNSP
+                    , ppVisible     = xmobarColor light0 "" . wrap "(" ")" . hideNSP
                     , ppTitle       = xmobarColor light1 "" . shorten 90 
                     , ppSep         = "  »  "
                     , ppWsSep       = " "
-                    , ppHidden      = xmobarColor light4 ""
+                    , ppHidden      = xmobarColor light4 "" . hideNSP
                     , ppUrgent      = xmobarColor dark0 yellow
                     },
         layoutHook         = myLayout,
         manageHook         = myManageHook,
         startupHook        = myStartupHook
         }
-
+        where
+            hideNSP ws = if ws == "NSP" then "" else ws
+myTerminal = "urxvt"
 -- Keymappings
 myKeys =    [ ("M-q",   spawn "killall xmobar && xmonad --recompile && xmonad --restart") 
             , ("M-a",   sendMessage MirrorShrink)
@@ -71,6 +74,7 @@ myKeys =    [ ("M-q",   spawn "killall xmobar && xmonad --recompile && xmonad --
             , ("M-p",   passPrompt promptConfig)
             , ("M-c",   shellPrompt promptConfig)
             , ("M-r",   swapNextScreen)
+            , ("M-s",   scratchpadSpawnActionTerminal myTerminal)
             ]
     
 myMMKeys =  [ ((0, 0x1008FF12),     spawn "amixer set Master toggle")
@@ -84,7 +88,7 @@ myMMKeys =  [ ((0, 0x1008FF12),     spawn "amixer set Master toggle")
             , ((mod4Mask, xK_Print), spawn "toggle-touchpad")
             ]
 
-searchKeys = [("M-o " ++ k, promptSearch promptConfig f  >> windows (W.view " Ψ ")) | (k,f) <- searchEngines ]
+searchKeys = [("M-o" ++ k, promptSearch promptConfig f  >> windows (W.view " Ψ ")) | (k,f) <- searchEngines ]
              ++ [("M-i " ++ k, selectSearch f >> windows (W.view " Ψ ")) | (k,f) <- searchEngines ]
 
 searchEngines = [ ("g", google)
@@ -102,7 +106,8 @@ myStartupHook = do
     spawnOn " Σ "   "urxvt -e mutt"
 --  spawnOn " Θ "   "urxvt -e ncmpcpp"
 
-myManageHook = manageSpawn
+myManageHook = scratchpadManageHook (W.RationalRect (1/6) (1/6) (4/6) (4/6)) 
+               <+> manageSpawn
                <+> composeAll
                    [ className =? "Zathura"                        --> viewShift " π "
                    , className =? "Vlc"                            --> doFloat >> viewShift " Θ "
@@ -119,9 +124,10 @@ myWorkspaces    = [" α ", " β ", " γ ", " Ψ ", " Σ ", " π ", " Θ ", " ξ 
 
 myLayout =  lessBorders Screen $
             workspaceDir "/home/andi" $
-            onWorkspaces [" α ", " β ", " γ "] (myMirrorTall ||| myResTall) $
-            onWorkspace  " Θ " (myResTall ||| myVideoLayout) $
+            onWorkspaces [" α ", " β ", " γ "] (myCodeLayout ||| myResTall) $
+            onWorkspace  " Σ " (myCommLayout ||| myResTall) $
             onWorkspace  " π " (myPDFLayout ||| myResTall) $
+            onWorkspace  " Θ " (myResTall ||| myVideoLayout) $
             myResTall 
             where   myResTall = named "<fc=#FDF4C1>[</fc><fc=#A89984> |-</fc><fc=#FDF4C1>]</fc>" 
                                 $ avoidStruts $ maximize $ ResizableTall nmaster delta ratio []
@@ -133,10 +139,13 @@ myLayout =  lessBorders Screen $
                                   where nmaster = 1
                                         ratio  = 4/5
                                         delta   = 3/100
-                    myMirrorTall =  named "<fc=#FDF4C1>[</fc><fc=#A89984>-:-</fc><fc=#FDF4C1>]</fc>"
-                                   $ avoidStruts $ Mirror $ Tall 1 (3/100) (4/5)
+                    myCodeLayout =  named "<fc=#FDF4C1>[</fc><fc=#A89984>-:-</fc><fc=#FDF4C1>]</fc>"
+                                    $ avoidStruts $ maximize $ Mirror $ Tall 1 (3/100) (4/5)
+                    myCommLayout =  named "<fc=#FDF4C1>[</fc><fc=#A89984>-:-</fc><fc=#FDF4C1>]</fc>"
+                                    $ avoidStruts $ maximize $ Mirror $ Tall 1 (3/100) (2/3)  
                     myVideoLayout =  named "<fc=#FDF4C1>[</fc><fc=#A89984>   </fc><fc=#FDF4C1>]</fc>"
                                     $ noBorders Full
+
 
 urgentConfig = UrgencyConfig 
     { suppressWhen = Focused
