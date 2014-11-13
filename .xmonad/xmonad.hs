@@ -141,7 +141,7 @@ myLayout =  lessBorders Screen $
                                     $ avoidStruts $ maximize $ Mirror $ ResizableTall 1 (3/100) (4/5) []
                     myCommLayout =  named "<fc=#FDF4C1>[</fc><fc=#A89984>-| </fc><fc=#FDF4C1>]</fc>"
                                     $ avoidStruts $ maximize 
-                                    $ combineTwoP (TwoPane (3/100) (3/5)) (Mirror $ ResizableTall 1 (3/100) (3/5) []) (ResizableTall 1 (3/100) (1/2) []) (Title "mutt" `Or` Title "newsbeuter")
+                                    $ combineTwoP (TwoPane (3/100) (3/5)) (Mirror $ ResizableTall 1 (3/100) (4/5) []) (ResizableTall 1 (3/100) (1/2) []) (Title "mutt" `Or` Title "newsbeuter")
                                     -- ResizableTall 2 (3/100) (2/3) []
                     myVideoLayout =  named "<fc=#FDF4C1>[</fc><fc=#A89984>   </fc><fc=#FDF4C1>]</fc>"
                                     $ noBorders Full
