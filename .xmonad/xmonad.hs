@@ -6,6 +6,8 @@ import XMonad.Layout.ResizableTile
 import XMonad.Layout.Named
 import XMonad.Layout.Maximize
 import XMonad.Layout.WorkspaceDir
+import XMonad.Layout.TwoPane
+import XMonad.Layout.ComboP
 
 import XMonad.Actions.SpawnOn
 import XMonad.Actions.Search
@@ -100,10 +102,12 @@ searchEngines = [ ("g", google)
 
 -- Hooks
 myStartupHook = do
-    spawn           "random-wallpaper"
-    spawnOn " α "   "urxvt -e ./.agents.sh"
-    spawnOn " Ψ "   "iceweasel"
-    spawnOn " Σ "   "urxvt -e mutt"
+    spawn       "random-wallpaper"
+    spawnAndDo  (doShift " α ") "urxvt -e ./.agents.sh"
+    spawnAndDo  (doShift " Σ ") "urxvt -e irssi"
+    spawnAndDo  (doShift " Σ ") "urxvt -e newsbeuter"
+    spawnAndDo  (doShift " Σ " <+> doF W.shiftMaster) "urxvt -e mutt"
+    spawnAndDo  (doShift " Ψ ") "iceweasel"
 --  spawnOn " Θ "   "urxvt -e ncmpcpp"
 
 myManageHook = scratchpadManageHook (W.RationalRect (1/6) (1/6) (4/6) (4/6)) 
@@ -125,24 +129,20 @@ myWorkspaces    = [" α ", " β ", " γ ", " Ψ ", " Σ ", " π ", " Θ ", " ξ 
 myLayout =  lessBorders Screen $
             workspaceDir "/home/andi" $
             onWorkspaces [" α ", " β ", " γ "] (myCodeLayout ||| myResTall) $
-            onWorkspace  " Σ " (myCommLayout ||| myResTall) $
+            onWorkspace  " Σ " (myCommLayout) $
             onWorkspace  " π " (myPDFLayout ||| myResTall) $
             onWorkspace  " Θ " (myResTall ||| myVideoLayout) $
             myResTall 
             where   myResTall = named "<fc=#FDF4C1>[</fc><fc=#A89984> |-</fc><fc=#FDF4C1>]</fc>" 
-                                $ avoidStruts $ maximize $ ResizableTall nmaster delta ratio []
-                                where   nmaster = 1 
-                                        ratio   = 1/2           -- golden ratio: toRational (2/(1+sqrt(5)::Double))
-                                        delta   = 3/100
+                                $ avoidStruts $ maximize $ ResizableTall 1 (3/100) (1/2) []
                     myPDFLayout = named "<fc=#FDF4C1>[</fc><fc=#A89984>  |</fc><fc=#FDF4C1>]</fc>"
-                                  $ avoidStruts $  maximize $ ResizableTall nmaster delta ratio []
-                                  where nmaster = 1
-                                        ratio  = 4/5
-                                        delta   = 3/100
+                                  $ avoidStruts $  maximize $ ResizableTall 1 (3/100) (4/5) []
                     myCodeLayout =  named "<fc=#FDF4C1>[</fc><fc=#A89984>-:-</fc><fc=#FDF4C1>]</fc>"
-                                    $ avoidStruts $ maximize $ Mirror $ Tall 1 (3/100) (4/5)
-                    myCommLayout =  named "<fc=#FDF4C1>[</fc><fc=#A89984>-:-</fc><fc=#FDF4C1>]</fc>"
-                                    $ avoidStruts $ maximize $ Mirror $ Tall 1 (3/100) (2/3)  
+                                    $ avoidStruts $ maximize $ Mirror $ ResizableTall 1 (3/100) (4/5) []
+                    myCommLayout =  named "<fc=#FDF4C1>[</fc><fc=#A89984>-| </fc><fc=#FDF4C1>]</fc>"
+                                    $ avoidStruts $ maximize 
+                                    $ combineTwoP (TwoPane (3/100) (3/5)) (Mirror $ ResizableTall 1 (3/100) (3/5) []) (ResizableTall 1 (3/100) (1/2) []) (Title "mutt" `Or` Title "newsbeuter")
+                                    -- ResizableTall 2 (3/100) (2/3) []
                     myVideoLayout =  named "<fc=#FDF4C1>[</fc><fc=#A89984>   </fc><fc=#FDF4C1>]</fc>"
                                     $ noBorders Full
 
