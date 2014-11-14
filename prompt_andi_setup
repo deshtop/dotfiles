@@ -3,7 +3,8 @@ pmodload 'helper'
 BG1='232'       # status
 BG2='233'       # elapsed time
 BG3='234'       # pwd
-BG4='235'       # git
+BG4='235'       # git branch
+BG5='237'       # git symbols
 FG1='9'         # red       -> error
 FG2='2'         # green     -> background job
 FG3='214'       # orange    -> elapsed time 
@@ -81,18 +82,17 @@ prompt_dir() {
 }
 
 prompt_git() {
-  local ref dirty
-  if $(git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
-    ZSH_THEME_GIT_PROMPT_DIRTY='±'
-    dirty=$(parse_git_dirty)
-    ref=$(git symbolic-ref HEAD 2> /dev/null) || ref="➦ $(git show-ref --head -s --abbrev |head -n1 2> /dev/null)"
-    if [[ -n $dirty ]]; then
-      prompt_segment $BG4 $FG6
+  if [[ -z ${git_info:+${(e)git_info[inGit]}} ]]; then
+  else
+    if [[ -z ${git_info:+${(e)git_info[dirty]}} ]]; then
+        prompt_segment $BG4 $FG5 "${git_info:+${(e)git_info[branch]}}"
     else
-      prompt_segment $BG4 $FG5
+        prompt_segment $BG4 $FG6 "${git_info:+${(e)git_info[branch]}}"
+        prompt_segment $BG5 $FG6 "`echo ${git_info:+${(e)git_info[symbols]}} | sed 's/.$//'`"
     fi
-    echo -n "${ref/refs\/heads\//\ue0a0 }$dirty"
+
   fi
+    
 }
 
 prompt_end() {
@@ -114,7 +114,25 @@ function prompt_andi_setup {
 
   add-zsh-hook precmd prompt_andi_precmd
   add-zsh-hook preexec prompt_andi_preexec   
-    
+
+   # Set git-info parameters.
+   zstyle ':prezto:module:git:info' verbose 'yes'
+   zstyle ':prezto:module:git:info:branch'      format ' %b'                   # %b
+   zstyle ':prezto:module:git:info:dirty'       format 'dirty'                  # %D
+   zstyle ':prezto:module:git:info:untracked'   format '➦ '                     # %u
+   zstyle ':prezto:module:git:info:modified'    format '± '                     # %m
+   zstyle ':prezto:module:git:info:added'       format '✚ '                     # %a
+   zstyle ':prezto:module:git:info:renamed'     format '➜ '                     # %r
+   zstyle ':prezto:module:git:info:deleted'     format '✖ '                     # %d
+   zstyle ':prezto:module:git:info:stashed'     format '✭ '                     # %S
+   zstyle ':prezto:module:git:info:ahead'       format '⬆ '                     # %A
+   zstyle ':prezto:module:git:info:behind'      format '⬇ '                     # %B
+   zstyle ':prezto:module:git:info:keys' format \
+    'inGit' '%b' \
+    'dirty' '%D' \
+    'branch' '%b' \
+    'symbols' '%u%m%a%r%d%S%A%B' \
+
   CURRENT_BG='NONE'
   SEGMENT_SEPARATOR='\ue0b0'
 
