@@ -85,10 +85,15 @@ prompt_git() {
   if [[ -z ${git_info:+${(e)git_info[inGit]}} ]]; then
   else
     if [[ -z ${git_info:+${(e)git_info[dirty]}} ]]; then
-        prompt_segment $BG4 $FG5 "${git_info:+${(e)git_info[branch]}}"
+        if [[ -z ${git_info:+${(e)git_info[clean_symbols]}} ]]; then
+            prompt_segment $BG4 $FG6 "${git_info:+${(e)git_info[branch]}}"
+        else
+            prompt_segment $BG4 $FG5 "${git_info:+${(e)git_info[branch]}}"
+            prompt_segment $BG5 $FG5 "`echo ${git_info:+${(e)git_info[clean_symbols]}} | sed 's/.$//'`"
+        fi
     else
         prompt_segment $BG4 $FG6 "${git_info:+${(e)git_info[branch]}}"
-        prompt_segment $BG5 $FG6 "`echo ${git_info:+${(e)git_info[symbols]}} | sed 's/.$//'`"
+        prompt_segment $BG5 $FG6 "`echo ${git_info:+${(e)git_info[dirty]}}${git_info:+${(e)git_info[clean_symbols]}} | sed 's/.$//'`"
     fi
 
   fi
@@ -118,7 +123,6 @@ function prompt_andi_setup {
    # Set git-info parameters.
    zstyle ':prezto:module:git:info' verbose 'yes'
    zstyle ':prezto:module:git:info:branch'      format ' %b'                   # %b
-   zstyle ':prezto:module:git:info:dirty'       format 'dirty'                  # %D
    zstyle ':prezto:module:git:info:untracked'   format '➦ '                     # %u
    zstyle ':prezto:module:git:info:modified'    format '± '                     # %m
    zstyle ':prezto:module:git:info:added'       format '✚ '                     # %a
@@ -129,9 +133,9 @@ function prompt_andi_setup {
    zstyle ':prezto:module:git:info:behind'      format '⬇ '                     # %B
    zstyle ':prezto:module:git:info:keys' format \
     'inGit' '%b' \
-    'dirty' '%D' \
     'branch' '%b' \
-    'symbols' '%u%m%a%r%d%S%A%B' \
+    'dirty'   '%u%m%a%r%d' \
+    'clean_symbols' '%S%A%B' \
 
   CURRENT_BG='NONE'
   SEGMENT_SEPARATOR='\ue0b0'
