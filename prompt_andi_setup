@@ -86,7 +86,7 @@ prompt_git() {
   else
     if [[ -z ${git_info:+${(e)git_info[dirty]}} ]]; then
         if [[ -z ${git_info:+${(e)git_info[clean_symbols]}} ]]; then
-            prompt_segment $BG4 $FG6 "${git_info:+${(e)git_info[branch]}}"
+            prompt_segment $BG4 $FG5 "${git_info:+${(e)git_info[branch]}}"
         else
             prompt_segment $BG4 $FG5 "${git_info:+${(e)git_info[branch]}}"
             prompt_segment $BG5 $FG5 "`echo ${git_info:+${(e)git_info[clean_symbols]}} | sed 's/.$//'`"
