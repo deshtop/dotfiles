@@ -11,7 +11,10 @@ FG3='214'       # orange    -> elapsed time
 FG4='222'       # salmon    -> path
 FG5='87'        # mint      -> git clean
 FG6='174'       # pink/red  -> git dirty
-
+SYMBOL_STASH=$FG6
+SYMBOL_FS='155'
+SYMBOL_GIT='166'   
+SYMBOL_REMOTE='9'  
 
 start_time=$SECONDS
 function prompt_andi_preexec {
@@ -82,18 +85,18 @@ prompt_dir() {
 }
 
 prompt_git() {
-  if [[ -z ${git_info:+${(e)git_info[inGit]}} ]]; then
+  if [[ -z ${git_info:+${(e)git_info[branch]}} ]]; then
   else
     if [[ -z ${git_info:+${(e)git_info[dirty]}} ]]; then
         if [[ -z ${git_info:+${(e)git_info[clean_symbols]}} ]]; then
             prompt_segment $BG4 $FG5 "${git_info:+${(e)git_info[branch]}}"
         else
             prompt_segment $BG4 $FG5 "${git_info:+${(e)git_info[branch]}}"
-            prompt_segment $BG5 $FG5 "`echo ${git_info:+${(e)git_info[clean_symbols]}} | sed 's/.$//'`"
+            prompt_segment $BG5 $FG6 "`echo ${git_info:+${(e)git_info[clean_symbols]}} | sed 's/.$//'`"
         fi
     else
         prompt_segment $BG4 $FG6 "${git_info:+${(e)git_info[branch]}}"
-        prompt_segment $BG5 $FG6 "`echo ${git_info:+${(e)git_info[dirty]}}${git_info:+${(e)git_info[clean_symbols]}} | sed 's/.$//'`"
+        prompt_segment $BG5 $FG6 "`echo ${git_info:+${(e)git_info[clean_stashed]}}${git_info:+${(e)git_info[dirty]}}${git_info:+${(e)git_info[clean_remote]}} | sed 's/.$//'`"
     fi
 
   fi
@@ -123,18 +126,19 @@ function prompt_andi_setup {
    # Set git-info parameters.
    zstyle ':prezto:module:git:info' verbose 'yes'
    zstyle ':prezto:module:git:info:branch'      format ' %b'                   # %b
-   zstyle ':prezto:module:git:info:untracked'   format '➦ '                     # %u
-   zstyle ':prezto:module:git:info:modified'    format '± '                     # %m
-   zstyle ':prezto:module:git:info:added'       format '✚ '                     # %a
-   zstyle ':prezto:module:git:info:renamed'     format '➜ '                     # %r
-   zstyle ':prezto:module:git:info:deleted'     format '✖ '                     # %d
-   zstyle ':prezto:module:git:info:stashed'     format '✭ '                     # %S
-   zstyle ':prezto:module:git:info:ahead'       format '⬆ '                     # %A
-   zstyle ':prezto:module:git:info:behind'      format '⬇ '                     # %B
+   zstyle ':prezto:module:git:info:untracked'   format '%F{$SYMBOL_FS}➦ %f'                     # %u
+   zstyle ':prezto:module:git:info:modified'    format '%F{$SYMBOL_FS}± %f'                     # %m
+   zstyle ':prezto:module:git:info:added'       format '%F{$SYMBOL_GIT}✚ %f'                     # %a
+   zstyle ':prezto:module:git:info:renamed'     format '%F{$SYMBOL_FS}➜ %f'                     # %r
+   zstyle ':prezto:module:git:info:deleted'     format '%F{$SYMBOL_FS}✖ %f'                     # %d
+   zstyle ':prezto:module:git:info:stashed'     format '%F{$SYMBOL_STASH}✭ %f'                     # %S
+   zstyle ':prezto:module:git:info:ahead'       format '%F{$SYMBOL_REMOTE}⬆ %f'                     # %A
+   zstyle ':prezto:module:git:info:behind'      format '%F{$SYMBOL_REMOTE}⬇ %f'  # %B
    zstyle ':prezto:module:git:info:keys' format \
-    'inGit' '%b' \
     'branch' '%b' \
     'dirty'   '%u%m%a%r%d' \
+    'clean_stashed' '%S' \
+    'clean_remote' '%A%B' \
     'clean_symbols' '%S%A%B' \
 
   CURRENT_BG='NONE'
