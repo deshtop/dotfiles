@@ -105,7 +105,11 @@ prompt_git() {
 
 prompt_end() {
   if [[ -n $CURRENT_BG ]]; then
-    echo -n " %{%k%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR"
+    if [[ $editor_info[keymap] == "n" ]]; then
+        echo -n " %{%k%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR"
+    else
+        echo -n " %{%k%F{$CURRENT_BG}%}%F{$FG4}$SEGMENT_SEPARATOR%f"
+    fi 
   else
     echo -n "%{%k%}"
   fi
@@ -114,38 +118,42 @@ prompt_end() {
 }
 
 function prompt_andi_setup {
-  setopt LOCAL_OPTIONS
-  unsetopt XTRACE KSH_ARRAYS
-  prompt_opts=(cr percent subst)
+    setopt LOCAL_OPTIONS
+    unsetopt XTRACE KSH_ARRAYS
+    prompt_opts=(cr percent subst)
 
-  autoload -Uz add-zsh-hook
+    autoload -Uz add-zsh-hook
 
-  add-zsh-hook precmd prompt_andi_precmd
-  add-zsh-hook preexec prompt_andi_preexec   
+    add-zsh-hook precmd prompt_andi_precmd
+    add-zsh-hook preexec prompt_andi_preexec   
 
-   # Set git-info parameters.
-   zstyle ':prezto:module:git:info' verbose 'yes'
-   zstyle ':prezto:module:git:info:branch'      format ' %b'                   # %b
-   zstyle ':prezto:module:git:info:untracked'   format '%F{$SYMBOL_FS}➦ %f'                     # %u
-   zstyle ':prezto:module:git:info:modified'    format '%F{$SYMBOL_FS}± %f'                     # %m
-   zstyle ':prezto:module:git:info:added'       format '%F{$SYMBOL_GIT}✚ %f'                     # %a
-   zstyle ':prezto:module:git:info:renamed'     format '%F{$SYMBOL_FS}➜ %f'                     # %r
-   zstyle ':prezto:module:git:info:deleted'     format '%F{$SYMBOL_FS}✖ %f'                     # %d
-   zstyle ':prezto:module:git:info:stashed'     format '%F{$SYMBOL_STASH}✭ %f'                     # %S
-   zstyle ':prezto:module:git:info:ahead'       format '%F{$SYMBOL_REMOTE}⬆ %f'                     # %A
-   zstyle ':prezto:module:git:info:behind'      format '%F{$SYMBOL_REMOTE}⬇ %f'  # %B
-   zstyle ':prezto:module:git:info:keys' format \
+    # Set editor-info parameters.
+    zstyle ':prezto:module:editor:info:keymap:primary' format 'n'
+    zstyle ':prezto:module:editor:info:keymap:alternate' format 'v'
+
+    # Set git-info parameters.
+    zstyle ':prezto:module:git:info' verbose 'yes'
+    zstyle ':prezto:module:git:info:branch'      format ' %b'                   # %b
+    zstyle ':prezto:module:git:info:untracked'   format '%F{$SYMBOL_FS}➦ %f'                     # %u
+    zstyle ':prezto:module:git:info:modified'    format '%F{$SYMBOL_FS}± %f'                     # %m
+    zstyle ':prezto:module:git:info:added'       format '%F{$SYMBOL_GIT}✚ %f'                     # %a
+    zstyle ':prezto:module:git:info:renamed'     format '%F{$SYMBOL_FS}➜ %f'                     # %r
+    zstyle ':prezto:module:git:info:deleted'     format '%F{$SYMBOL_FS}✖ %f'                     # %d
+    zstyle ':prezto:module:git:info:stashed'     format '%F{$SYMBOL_STASH}✭ %f'                     # %S
+    zstyle ':prezto:module:git:info:ahead'       format '%F{$SYMBOL_REMOTE}⬆ %f'                     # %A
+    zstyle ':prezto:module:git:info:behind'      format '%F{$SYMBOL_REMOTE}⬇ %f'  # %B
+    zstyle ':prezto:module:git:info:keys' format \
     'branch' '%b' \
     'dirty'   '%u%m%a%r%d' \
     'clean_stashed' '%S' \
     'clean_remote' '%A%B' \
     'clean_symbols' '%S%A%B' \
 
-  CURRENT_BG='NONE'
-  SEGMENT_SEPARATOR='\ue0b0'
+    CURRENT_BG='NONE'
+    SEGMENT_SEPARATOR='\ue0b0'
 
-  PROMPT='%{%f%b%k%}$(build_prompt) '
-  SPROMPT='zsh: correct %F{$FG1}%R%f to %F{$FG2}%r%f [nyae]? '
+    PROMPT='%{%f%b%k%}$(build_prompt) '
+    SPROMPT='zsh: correct %F{$FG1}%R%f to %F{$FG2}%r%f [nyae]? '
 }
 
 prompt_andi_setup "$@"
