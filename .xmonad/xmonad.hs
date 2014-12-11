@@ -1,6 +1,6 @@
 import XMonad
 
-import XMonad.Layout.NoBorders 
+import XMonad.Layout.NoBorders
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.Named
@@ -11,16 +11,17 @@ import XMonad.Layout.ComboP
 
 import XMonad.Actions.SpawnOn
 import XMonad.Actions.Search
-import XMonad.Actions.CycleWS (swapNextScreen)
+import XMonad.Actions.CycleWS
 
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.ManageDocks hiding (L)
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageHelpers
 
-import XMonad.Util.EZConfig(additionalKeys, additionalKeysP)
+import XMonad.Util.EZConfig
 import XMonad.Util.Run
 import XMonad.Util.Scratchpad
+import XMonad.Util.WorkspaceCompare
 
 import qualified XMonad.StackSet as W
 
@@ -33,11 +34,10 @@ import System.FilePath.Find
 
 import Control.Monad(liftM2)
 
-
 main = do
-    myXmobar <- spawnPipe "xmobar -x 1"
+    myXMobar <- spawnPipe "xmobar -x 1"
     xmonad $ withUrgencyHookC NoUrgencyHook urgentConfig 
-        $ conf myXmobar
+        $ conf myXMobar
         `additionalKeysP` myKeys
         `additionalKeysP` searchKeys 
         `additionalKeys`  myMMKeys
@@ -51,34 +51,39 @@ conf myConfig = defaultConfig {
         normalBorderColor   = dark0,
         focusedBorderColor  = light0,
         logHook             = dynamicLogWithPP xmobarPP
-                    { ppOutput      = hPutStrLn myConfig
-                    , ppCurrent     = xmobarColor light0 "" . wrap "[" "]" . hideNSP
-                    , ppVisible     = xmobarColor light0 "" . wrap "(" ")" . hideNSP
-                    , ppTitle       = xmobarColor light1 "" . shorten 90 
-                    , ppSep         = "  »  "
-                    , ppWsSep       = " "
-                    , ppHidden      = xmobarColor light4 "" . hideNSP
-                    , ppUrgent      = xmobarColor dark0 yellow
-                    },
+                { ppOutput = hPutStrLn myConfig
+                , ppCurrent = xmobarColor dark0 light1 . hideNSP
+                , ppVisible = xmobarColor dark0 light4 . hideNSP
+                , ppTitle = xmobarColor light1 "" . shorten 90
+                , ppSep = " » "
+                , ppWsSep = " "
+                , ppHidden = xmobarColor light4 "" . hideNSP
+                , ppUrgent = xmobarColor dark0 yellow 
+                },
         layoutHook         = myLayout,
         manageHook         = myManageHook,
         startupHook        = myStartupHook
         }
-        where
-            hideNSP ws = if ws == "NSP" then "" else ws
+        where   hideNSP ws = if ws == "NSP" then "" else ws
+
 myTerminal = "urxvt"
+
 -- Keymappings
 myKeys =    [ ("M-q",   spawn "killall xmobar && xmonad --recompile && xmonad --restart") 
-            , ("M-a",   sendMessage MirrorShrink)
-            , ("M-z",   sendMessage MirrorExpand) 
+            , ("M-S-h",   sendMessage MirrorShrink)
+            , ("M-S-l",   sendMessage MirrorExpand) 
             , ("M-#",   withFocused (sendMessage . maximizeRestore))
-            , ("M-d",   changeDir promptConfig >> spawn "./.resume.sh")
+            , ("M-d",   changeDir promptConfig)
             , ("M-p",   passPrompt promptConfig)
             , ("M-c",   shellPrompt promptConfig)
             , ("M-r",   swapNextScreen)
             , ("M-s",   scratchpadSpawnActionTerminal myTerminal)
+            , ("M-b",   toggleWS)
+            , ("M-u",   moveTo Prev HiddenWS)
+            , ("M-i",   moveTo Next HiddenWS)
             ]
-    
+
+
 myMMKeys =  [ ((0, 0x1008FF12),     spawn "amixer set Master toggle")
             , ((0, 0x1008FF11),     spawn "amixer set Master 3%-")
             , ((0, 0x1008FF13),     spawn "amixer set Master 3%+")
@@ -90,8 +95,8 @@ myMMKeys =  [ ((0, 0x1008FF12),     spawn "amixer set Master toggle")
             , ((mod4Mask, xK_Print), spawn "toggle-touchpad")
             ]
 
-searchKeys = [("M-o" ++ k, promptSearch promptConfig f  >> windows (W.view " Ψ ")) | (k,f) <- searchEngines ]
-             ++ [("M-i " ++ k, selectSearch f >> windows (W.view " Ψ ")) | (k,f) <- searchEngines ]
+searchKeys = [ ("M-v " ++ k, promptSearch promptConfig f  >> windows (W.view " Ψ ")) | (k,f) <- searchEngines ]
+          ++ [ ("M-S-v " ++ k, selectSearch f >> windows (W.view " Ψ ")) | (k,f) <- searchEngines ]
 
 searchEngines = [ ("g", google)
                 , ("w", wikipedia) 
@@ -103,17 +108,17 @@ searchEngines = [ ("g", google)
 -- Hooks
 myStartupHook = do
     spawn       "random-wallpaper"
-    spawnAndDo  (doShift " α ") "urxvt -e ./.agents.sh"
     spawnAndDo  (doShift " Σ ") "urxvt -e irssi"
     spawnAndDo  (doShift " Σ ") "urxvt -e newsbeuter"
     spawnAndDo  (doShift " Σ " <+> doF W.shiftMaster) "urxvt -e mutt"
     spawnAndDo  (doShift " Ψ ") "iceweasel"
---  spawnOn " Θ "   "urxvt -e ncmpcpp"
+    spawnOn " α "   "urxvt -e ./.agents.sh"
+    spawnOn " Θ "   "urxvt -e ncmpcpp"
 
 myManageHook = scratchpadManageHook (W.RationalRect (1/6) (1/6) (4/6) (4/6)) 
                <+> manageSpawn
                <+> composeAll
-                   [ className =? "Zathura"                        --> viewShift " π "
+                   [ className =? "Zathura"                        --> viewShift " Π "
                    , className =? "Vlc"                            --> doFloat >> viewShift " Θ "
                    , className =? "Plugin-container"               --> doFloat         -- Flash fullscreen
                    , className =? "MATLAB"                         --> doFloat
@@ -124,24 +129,24 @@ myManageHook = scratchpadManageHook (W.RationalRect (1/6) (1/6) (4/6) (4/6))
                <+> manageHook defaultConfig
                where   viewShift = doF . liftM2 (.) W.greedyView W.shift
 
-myWorkspaces    = [" α ", " β ", " γ ", " Ψ ", " Σ ", " π ", " Θ ", " ξ "] 
+myWorkspaces    = [" Ψ ", " Σ ", " α ", " β ", " Π ", " Θ "] 
 
 myLayout =  lessBorders Screen $
             workspaceDir "/home/andi" $
-            onWorkspaces [" α ", " β ", " γ "] (myCodeLayout ||| myResTall) $
+            onWorkspaces [" α ", " β "] (myCodeLayout ||| myResTall) $
             onWorkspace  " Σ " (myCommLayout) $
-            onWorkspace  " π " (myPDFLayout ||| myResTall) $
+            onWorkspace  " Π " (myPDFLayout ||| myResTall) $
             onWorkspace  " Θ " (myResTall ||| myVideoLayout) $
             myResTall 
             where   myResTall = named "<fc=#FDF4C1>[</fc><fc=#A89984> |-</fc><fc=#FDF4C1>]</fc>" 
                                 $ avoidStruts $ maximize $ ResizableTall 1 (3/100) (1/2) []
                     myPDFLayout = named "<fc=#FDF4C1>[</fc><fc=#A89984>  |</fc><fc=#FDF4C1>]</fc>"
-                                  $ avoidStruts $  maximize $ ResizableTall 1 (3/100) (4/5) []
+                                  $ avoidStruts $  maximize $ ResizableTall 1 (3/100) (5/6) []
                     myCodeLayout =  named "<fc=#FDF4C1>[</fc><fc=#A89984>-:-</fc><fc=#FDF4C1>]</fc>"
-                                    $ avoidStruts $ maximize $ Mirror $ ResizableTall 1 (3/100) (4/5) []
+                                    $ avoidStruts $ maximize $ Mirror $ ResizableTall 1 (3/100) (5/6) []
                     myCommLayout =  named "<fc=#FDF4C1>[</fc><fc=#A89984>-| </fc><fc=#FDF4C1>]</fc>"
                                     $ avoidStruts $ maximize 
-                                    $ combineTwoP (TwoPane (3/100) (3/5)) (Mirror $ ResizableTall 1 (3/100) (4/5) []) (ResizableTall 1 (3/100) (1/2) []) (Title "mutt" `Or` Title "newsbeuter")
+                                    $ combineTwoP (TwoPane (3/100) (3/5)) (Mirror $ ResizableTall 1 (3/100) (3/4) []) (ResizableTall 1 (3/100) (1/2) []) (Title "mutt" `Or` Title "newsbeuter")
                                     -- ResizableTall 2 (3/100) (2/3) []
                     myVideoLayout =  named "<fc=#FDF4C1>[</fc><fc=#A89984>   </fc><fc=#FDF4C1>]</fc>"
                                     $ noBorders Full
