@@ -3,7 +3,7 @@ Config { font = "xft:DejaVu Sans Mono:pixelsize=14"
          , fgColor = "#EBDBB2"
          , lowerOnStart = False
          , commands = [ Run Cpu ["-L","26","-H","51","-l","#B8BB26","-n","#FE8019","-h","#FB4934"] 10
-                      , Run Memory ["-t","Mem: <usedratio>%","-L","21","-H","51","-l","#B8BB26","-n","#FE8019","-h","#FB4934"] 10
+                      , Run Memory ["-t","Mem: <usedratio>%","-L","26","-H","51","-l","#B8BB26","-n","#FE8019","-h","#FB4934"] 10
                       , Run Date "(%a) %_d %b %R:%S" "date" 10
                       , Run Battery ["-t","Batt: <left>% (<timeleft>)","-L","20","-H","70","-l","#FB4934","-n","#FE8019","-h","#B8BB26"] 10
                       , Run Com "/home/andi/.xmonad/script/vol.sh" [] "vol" 5
