@@ -21,7 +21,6 @@ import XMonad.Hooks.ManageHelpers
 import XMonad.Util.EZConfig
 import XMonad.Util.Run
 import XMonad.Util.Scratchpad
-import XMonad.Util.WorkspaceCompare
 
 import qualified XMonad.StackSet as W
 
